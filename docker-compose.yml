@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: joule-ai-postgres
+
+    environment:
+      POSTGRES_DB: joule_ai_db
+      POSTGRES_USER: joule_ai_user
+      POSTGRES_PASSWORD: joule_ai_password
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - joule_ai_data:/var/lib/postgresql/data
+
+volumes:
+  joule_ai_data:
