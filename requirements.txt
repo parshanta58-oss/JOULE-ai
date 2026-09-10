@@ -1,2 +1,12 @@
 Faker
 psycopg2-binary
+
+langchain
+langchain-core
+langchain-community
+langgraph
+
+langchain-groq
+langchain-google-genai
+
+python-dotenv
