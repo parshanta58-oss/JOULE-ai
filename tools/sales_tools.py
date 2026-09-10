@@ -1,7 +1,10 @@
 from tools.database import get_connection
 
 def get_sales_summary(start_date=None, end_date=None):
-
+    """
+    Get total number of orders and total sales.
+    Optionally filter sales by start date and end date.
+    """
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -42,7 +45,9 @@ def get_sales_summary(start_date=None, end_date=None):
 
 
 def get_top_customers(limit=10):
-
+    """
+    Get the top customers ranked by total sales.
+    """
     connection=get_connection()
     cursor=connection.cursor()
 
@@ -80,7 +85,9 @@ SELECT
 
 
 def get_customer_sales(customer_id):
-
+    """
+    Get total orders and total sales for a specific customer.
+    """
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -117,7 +124,10 @@ def get_customer_sales(customer_id):
     }
 
 def get_order_details(order_id):
-
+    """
+    Get detailed information about a specific order,
+    including customer and product information.
+    """
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -174,7 +184,9 @@ def get_order_details(order_id):
 
 
 def get_sales_by_product(limit=10):
-
+    """
+    Get products ranked by total sales and units sold.
+    """
     connection = get_connection()
     cursor = connection.cursor()
 
