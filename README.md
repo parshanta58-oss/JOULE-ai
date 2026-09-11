@@ -15,9 +15,9 @@ JOULE-AI is a sophisticated multi-agent system designed to streamline enterprise
 - **Multi-LLM Support**: Compatible with Groq and Google GenAI models
 - **Docker Support**: Easy deployment with Docker Compose
 ## 🏗️ Architecture
-```
-![alt text](image.png)
-```
+
+<img src="/workspaces/JOULE-ai/image.png",width=300>
+
 ## 📁 Project Structure
 ```
 JOULE-ai/
