@@ -3,8 +3,11 @@ from dotenv import load_dotenv
 load_dotenv()
 from langchain_groq import ChatGroq
 
-llm=ChatGroq(
-    model="openai/gpt-oss-120b", api_key=""
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3.6-flash",
+    api_key=os.getenv("GOOGLE_API_KEY")
 )
 
 from tools.sales_tools import (
