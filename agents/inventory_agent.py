@@ -12,6 +12,7 @@ from tools.inventory_tool import (
 )
 
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
@@ -27,9 +28,8 @@ tools = [
     get_inventory_by_category,
 ]
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash",
-    api_key=os.getenv("GOOGLE_API_KEY")
+llm=ChatGroq(
+    model="openai/gpt-oss-120b", api_key=""
 )
 
 llm_with_tools = llm.bind_tools(tools)
@@ -71,18 +71,5 @@ graph.add_edge(
 
 
 
-app = graph.compile()
+inventory_app = graph.compile()
 
-
-# User input
-input_text = input("Enter your Inventory query: ")
-
-response = app.invoke(
-    {
-        "messages": [
-            HumanMessage(content=input_text)
-        ]
-    }
-)
-
-print(response["messages"][-1].content)

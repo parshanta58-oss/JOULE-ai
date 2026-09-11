@@ -5,9 +5,8 @@ from langchain_groq import ChatGroq
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash",
-    api_key=os.getenv("GOOGLE_API_KEY")
+llm=ChatGroq(
+    model="openai/gpt-oss-120b", api_key=""
 )
 
 from tools.sales_tools import (
@@ -71,15 +70,9 @@ graph.add_conditional_edges(
 
 graph.add_edge("tools", "sales_agent")
 
-app = graph.compile()
+sales_app = graph.compile()
 
 
-input_text = input("Enter your query: ")
 
-response = app.invoke({
-    "messages": [
-        HumanMessage(content=input_text)
-    ]
-})
 
-print(response["messages"][-1].content)
+

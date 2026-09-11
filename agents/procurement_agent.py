@@ -11,6 +11,7 @@ from tools.procurement_tool import (
     get_suppliers_by_country,
 )
 
+from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, START
@@ -30,9 +31,8 @@ tools = [
 
 
 # Gemini LLM
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash",
-    api_key=os.getenv("GOOGLE_API_KEY")
+llm=ChatGroq(
+    model="openai/gpt-oss-120b", api_key=""
 )
 
 llm_with_tools = llm.bind_tools(tools)
@@ -78,18 +78,6 @@ graph.add_edge(
 
 
 # Compile
-app = graph.compile()
+procurement_app = graph.compile()
 
 
-# User input
-input_text = input("Enter your Procurement query: ")
-
-response = app.invoke(
-    {
-        "messages": [
-            HumanMessage(content=input_text)
-        ]
-    }
-)
-
-print(response["messages"][-1].content)
