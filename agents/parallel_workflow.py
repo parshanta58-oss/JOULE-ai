@@ -1,4 +1,4 @@
-from typing import TypedDict, Annotated
+from typing import TypedDict, Annotated, NotRequired
 from langgraph.graph.message import add_messages
 from agents.sales_agent import sales_app
 from agents.finance_agent import finance_app
@@ -9,10 +9,13 @@ from langgraph.graph import StateGraph, START, END
 from langchain_groq import ChatGroq
 
 class ParallelState(TypedDict):
-    messages: Annotated[list, add_messages]
-    sales_result: str
-    finance_result: str
-    inventory_result: str
+        messages: Annotated[list, add_messages]
+
+        sales_result: NotRequired[str]
+        finance_result: NotRequired[str]
+        hr_result: NotRequired[str]
+        procurement_result: NotRequired[str]
+        inventory_result: NotRequired[str]
 
 
 def run_sales(state: ParallelState):
@@ -65,23 +68,22 @@ def aggregator(state: ParallelState):
     prompt = f"""
     You are a business report aggregator.
 
-    Combine the results from the five domain agents into one
-    clear and concise response.
+    Combine the results from the five domain agents.
 
     SALES:
-    {state["sales_result"]}
+    {state.get("sales_result", "No result")}
 
     FINANCE:
-    {state["finance_result"]}
+    {state.get("finance_result", "No result")}
 
     HR:
-    {state["hr_result"]}
+    {state.get("hr_result", "No result")}
 
     PROCUREMENT:
-    {state["procurement_result"]}
+    {state.get("procurement_result", "No result")}
 
     INVENTORY:
-    {state["inventory_result"]}
+    {state.get("inventory_result", "No result")}
 
     Provide a unified business summary.
     """
@@ -122,3 +124,20 @@ llm = ChatGroq(
 )
 
 app = graph.compile()
+""" 
+
+query = "Give me an overall business summary"
+
+
+result = app.invoke({
+    "messages": [
+        {
+            "role": "user",
+            "content": query
+        }
+    ]
+})
+
+
+print("\n===== FINAL BUSINESS SUMMARY =====\n")
+print(result["messages"][-1].content) """
