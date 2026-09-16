@@ -1,12 +1,24 @@
 Faker
 psycopg2-binary
 
-langchain
-langchain-core
-langchain-community
-langgraph
 
-langchain-groq
+
 langchain-google-genai
 
+
+pypdf
+
 python-dotenv
+langchain
+langchain-community
+langchain-core
+langchain-groq
+langgraph
+langgraph-prebuilt
+langchain-text-splitters
+langchain-chroma
+chromadb
+sentence-transformers
+python-dotenv
+pypdf
+tiktoken
