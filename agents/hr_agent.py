@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-
+from rag.rag_tool import search_company_documents
 load_dotenv()
 
 from tools.hr_tool import (
@@ -33,17 +33,17 @@ tools = [
     get_employee_count_by_department,
     get_department_employees,
     get_employee_details,
-    get_employee_leaves
+    get_employee_leaves,
+    search_company_documents
 ]
 
 
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 llm=ChatGroq(
     model="openai/gpt-oss-120b", api_key=""
 )
 
-llm_with_tools = llm.bind_tools(tools)
+llm_with_tools=llm.bind_tools(tools)
 
 
 class HRPipeline(TypedDict):
@@ -51,17 +51,39 @@ class HRPipeline(TypedDict):
 
 def hr_agent(state: HRPipeline):
 
-    response = llm_with_tools.invoke(
-        state["messages"]
-    )
+    system_message = """
+    You are an HR Agent for an enterprise AI system.
 
-    return {
-        "messages": [response]
-    }
+    Use SQL tools when the user asks about structured HR data such as:
+    - employees
+    - employee details
+    - attendance
+    - leave records
+    - departments
+    - employee counts
 
-tool_node = ToolNode(tools)
+    Use the company document search tool when the user asks about:
+    - leave policies
+    - attendance policies
+    - HR procedures
+    - employee rules
+    - documented company processes
 
-graph = StateGraph(HRPipeline)
+    Use both SQL tools and the company document search tool when the question requires both structured HR data and company documentation.
+
+    Always use the appropriate tool instead of guessing.
+    """
+    messages=[
+        {"role": "system", "content": system_message}
+    ] + state["messages"]
+
+    response = llm_with_tools.invoke(messages)
+
+    return {"messages":[response]}
+
+tool_node=ToolNode(tools)
+
+graph=StateGraph(HRPipeline)
 
 graph.add_node("hr_agent", hr_agent)
 graph.add_node("tools", tool_node)
@@ -75,5 +97,13 @@ graph.add_conditional_edges(
 
 graph.add_edge("tools", "hr_agent")
 
-hr_app = graph.compile()
+hr_app= graph.compile()
 
+query=input("Enter your query : ")
+
+
+response=hr_app.invoke(
+    {"messages":[query]}
+)
+
+print(response["messages"][-1].content)

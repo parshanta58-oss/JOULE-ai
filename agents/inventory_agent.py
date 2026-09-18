@@ -9,6 +9,7 @@ from tools.inventory_tool import (
     get_product_inventory,
     get_inventory_summary_by_warehouse,
     get_inventory_by_category,
+    
 )
 
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -18,7 +19,7 @@ from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from typing import TypedDict, Annotated
-
+from rag.rag_tool import search_company_documents
 
 tools = [
     get_low_stock_products,
@@ -26,6 +27,7 @@ tools = [
     get_product_inventory,
     get_inventory_summary_by_warehouse,
     get_inventory_by_category,
+    search_company_documents
 ]
 
 llm=ChatGroq(
@@ -40,13 +42,35 @@ class InventoryPipeline(TypedDict):
 
 
 def inventory_agent(state: InventoryPipeline):
-    response = llm_with_tools.invoke(
-        state["messages"]
-    )
+    system_message = """
+    You are an Inventory Agent for an enterprise AI system.
 
-    return {
-        "messages": [response]
-    }
+    Use SQL tools when the user asks about structured inventory data such as:
+    - inventory quantities
+    - low-stock products
+    - warehouse inventory
+    - product inventory
+    - inventory by category
+    - warehouse summaries
+
+    Use the company document search tool when the user asks about:
+    - inventory management procedures
+    - stock replenishment policies
+    - inventory SOPs
+    - stock handling rules
+    - documented company processes
+
+    Use both SQL tools and the company document search tool when the question requires both structured inventory data and company documentation.
+
+    Always use the appropriate tool instead of guessing.
+    """
+    messages = [
+        {"role": "system", "content": system_message}
+    ] + state["messages"]
+
+    response = llm_with_tools.invoke(messages)
+
+    return {"messages": [response]}
 
 
 tool_node = ToolNode(tools)
@@ -72,4 +96,12 @@ graph.add_edge(
 
 
 inventory_app = graph.compile()
+
+query=input("Enter your query :")
+
+response=inventory_app.invoke(
+    {"messages":[query]}
+)
+
+print(response["messages"][-1].content)
 

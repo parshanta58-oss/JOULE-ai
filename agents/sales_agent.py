@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from langchain_groq import ChatGroq
-
+from rag.rag_tool import search_company_documents
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 llm=ChatGroq(
@@ -23,6 +23,7 @@ tools=[
     get_customer_sales,
     get_order_details,
     get_sales_by_product,
+    search_company_documents
 ]
 
 llm_with_tools=llm.bind_tools(tools)
@@ -40,21 +41,36 @@ class SalesPipeline(TypedDict):
 tool_node = ToolNode(tools)
 
 def sales_agent(state: SalesPipeline):
+    system_message = """
+    You are a Sales Agent for an enterprise AI system.
 
-    print("\n ***** Sales Agent is thinking...*****")
+    Use SQL tools when the user asks about structured sales data such as:
+    - sales
+    - customers
+    - orders
+    - order details
+    - customer sales
+    - product sales
+    - sales summaries
 
-    response = llm_with_tools.invoke(state["messages"])
+    Use the company document search tool when the user asks about:
+    - sales policies
+    - sales processes
+    - order management policies
+    - documented procedures
+    - company rules
 
-    if response.tool_calls:
-        print(" Tool requested:")
-        for tool_call in response.tool_calls:
-            print("   →", tool_call["name"], tool_call["args"])
-    else:
-        print(" ******No tool required. Generating final answer.***** ")
+    Use both SQL tools and the company document search tool when the question requires both structured business data and company documentation.
 
-    return {
-        "messages": [response]
-    }
+    Always use the appropriate tool instead of guessing.
+    """
+    messages = [
+        {"role": "system", "content": system_message}
+    ] + state["messages"]
+
+    response = llm_with_tools.invoke(messages)
+
+    return {"messages": [response]}
 
 graph = StateGraph(SalesPipeline)
 
@@ -73,6 +89,13 @@ graph.add_edge("tools", "sales_agent")
 sales_app = graph.compile()
 
 
+""" query=input("Enter your query : ")
 
+
+response=sales_app.invoke(
+    {"messages":[query]}
+)
+
+print(response["messages"][-1].content) """
 
 
