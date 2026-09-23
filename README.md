@@ -1,19 +1,19 @@
-# 🤖 JOULE-AI: Multi-Agent Enterprise System
+# JOULE-AI: Multi-Agent Enterprise System
 
 **JOULE-AI** is an intelligent enterprise automation system built with LangChain and LangGraph that leverages AI agents to automate business processes across multiple departments including Sales, Finance, HR, Inventory, and Procurement.
 
-## 📋 Overview
+## Overview
 
 JOULE-AI is a sophisticated multi-agent system designed to streamline enterprise operations by deploying specialized AI agents for different business functions. Each agent is equipped with domain-specific tools and capabilities to handle complex business queries and automate workflows.
 
-### ✨ Key Features
+### Key Features
 
 - **Multi-Agent Architecture**: 5 specialized independent agents for different departments
-  - 🏪 **Sales Agent** - Sales analytics, customer management, order tracking
-  - 💰 **Finance Agent** - Financial analysis and reporting
-  - 👥 **HR Agent** - Human resources management
-  - 📦 **Inventory Agent** - Stock and inventory management
-  - 🛒 **Procurement Agent** - Vendor and purchase management
+  - **Sales Agent** - Sales analytics, customer management, order tracking
+  - **Finance Agent** - Financial analysis and reporting
+  - **HR Agent** - Human resources management
+  - **Inventory Agent** - Stock and inventory management
+  - **Procurement Agent** - Vendor and purchase management
 
 - **Supervisor Agent**: Intelligent routing system that directs queries to appropriate agents
 - **Database Integration**: PostgreSQL backend for persistent data storage
@@ -21,7 +21,7 @@ JOULE-AI is a sophisticated multi-agent system designed to streamline enterprise
 - **Multi-LLM Support**: Compatible with Groq and Google GenAI models
 - **Docker Support**: Easy deployment with Docker Compose
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -50,7 +50,7 @@ JOULE-AI is a sophisticated multi-agent system designed to streamline enterprise
                    └───────────────────┘
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 JOULE-ai/
@@ -81,7 +81,7 @@ JOULE-ai/
 └── test_*.py                       # Test files for each component
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -124,7 +124,7 @@ JOULE-ai/
    python data_generation/generate_data.py
    ```
 
-## 📦 Dependencies
+## Dependencies
 
 Core dependencies include:
 
@@ -147,7 +147,7 @@ Core dependencies include:
 
 See `requirements.txt` for complete list.
 
-## 🛠️ Usage
+## Usage
 
 ### Running Individual Agents
 
@@ -215,7 +215,7 @@ The project uses PostgreSQL running in Docker with the following configuration:
 - `suppliers` - Vendor information
 - `financial_records` - Financial transactions
 
-## 🧪 Testing
+## Testing
 
 Run the included test files to verify agent functionality:
 
@@ -245,7 +245,7 @@ python test_procurement_tool.py
 python test_supervisor_sales.py
 ```
 
-## 📊 Available Tools
+##  Available Tools
 
 ### Sales Tools
 - `get_sales_summary()` - Get sales metrics for a date range
@@ -276,7 +276,7 @@ python test_supervisor_sales.py
 - Purchase order tracking
 - Supplier performance analysis
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -303,32 +303,32 @@ MODEL_NAME=llama2-70b-4096  # For Groq
 MODEL_NAME=gemini-pro  # For Google GenAI
 ```
 
-## 📈 Development Progress
+## Development Progress
 
 ### ✅ Completed
-- [x] Database schema and setup
-- [x] Dummy data generation with Faker
-- [x] Sales Agent with specialized tools
-- [x] Finance Agent implementation
-- [x] HR, Inventory, and Procurement agents
-- [x] Supervisor agent for intelligent routing
-- [x] Docker Compose configuration
-- [x] Individual component testing
+-  Database schema and setup
+-  Dummy data generation with Faker
+-  Sales Agent with specialized tools
+-  Finance Agent implementation
+-  HR, Inventory, and Procurement agents
+-  Supervisor agent for intelligent routing
+-  Docker Compose configuration
+-  Individual component testing
 
-### 🚧 In Progress
-- [x] Supervisor agent refinement
+### In Progress
+-  Supervisor agent refinement
 
-### 📝 Planned Features
-- [ ] Advanced analytics and reporting
-- [ ] Real-time notifications
-- [ ] Web dashboard interface
-- [ ] API REST endpoints
-- [ ] Multi-language support
-- [ ] Enhanced error handling and logging
-- [ ] Performance optimization
-- [ ] Unit and integration test suite
+###  Planned Features
+-  Advanced analytics and reporting
+-  Real-time notifications
+-  Web dashboard interface
+-  API REST endpoints
+-  Multi-language support
+-  Enhanced error handling and logging
+-  Performance optimization
+-  Unit and integration test suite
 
-## 💡 How It Works
+##  How It Works
 
 1. **Query Reception**: User submits a query to the system
 2. **Supervisor Routing**: Supervisor agent analyzes the query and determines which specialized agent should handle it
@@ -337,7 +337,7 @@ MODEL_NAME=gemini-pro  # For Google GenAI
 5. **Response Generation**: The agent formats and returns the response to the user
 6. **Output**: Final answer is presented to the user
 
-## 🔐 Security Notes
+##  Security Notes
 
 - Use strong database passwords in production
 - Store API keys securely (use environment variables)
@@ -345,23 +345,21 @@ MODEL_NAME=gemini-pro  # For Google GenAI
 - Validate and sanitize all user inputs
 - Use HTTPS for API endpoints
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Please feel free to submit pull requests with improvements or new features.
 
-## 📄 License
+##  License
 
 This project is open source and available under the MIT License.
 
-## 👤 Author
+##  Author
 
 **Parshanta** - [GitHub Profile](https://github.com/parshanta58-oss)
 
-## 📞 Support
 
-For issues, questions, or suggestions, please open an issue on the [GitHub repository](https://github.com/parshanta58-oss/JOULE-ai/issues).
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Built with [LangChain](https://www.langchain.com/) and [LangGraph](https://github.com/langchain-ai/langgraph)
 - Powered by [Groq](https://groq.com/) and [Google GenAI](https://ai.google.dev/)
@@ -369,5 +367,4 @@ For issues, questions, or suggestions, please open an issue on the [GitHub repos
 
 ---
 
-**Last Updated**: September 2026
-**Status**: Active Development 🚀
+
