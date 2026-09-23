@@ -195,7 +195,7 @@ query = "Process a new purchase order"
 decision = supervisor(query)  # Returns the target agent type
 ```
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### PostgreSQL Setup
 
@@ -305,7 +305,7 @@ MODEL_NAME=gemini-pro  # For Google GenAI
 
 ## Development Progress
 
-### ✅ Completed
+### Completed
 -  Database schema and setup
 -  Dummy data generation with Faker
 -  Sales Agent with specialized tools
