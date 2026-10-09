@@ -78,7 +78,6 @@ def review_replenishment_request(
     Approve or reject a pending replenishment request.
     """
 
-    # Validate the decision
     decision = decision.strip().upper()
 
     if decision not in ["APPROVED", "REJECTED"]:
@@ -243,7 +242,12 @@ def request_human_review(request_id: int, decision: str):
     Pause the workflow and request explicit human confirmation
     before approving or rejecting a replenishment request.
     """
-
+    if not isinstance(request_id, int) or isinstance(request_id, bool) or request_id <= 0:
+        return {
+            "success": False,
+            "message": "Request ID must be a positive integer."
+        }
+    
     decision = decision.strip().upper()
 
     if decision not in ["APPROVED", "REJECTED"]:
@@ -252,7 +256,29 @@ def request_human_review(request_id: int, decision: str):
             "message": "Decision must be APPROVED or REJECTED."
         }
 
-    # Pause the LangGraph workflow until a human responds.
+    pending_result = get_pending_replenishment_requests.invoke({})
+
+    if not pending_result.get("success"):
+        return {
+            "success": False,
+            "message": "Unable to verify pending replenishment requests."
+        }
+
+    pending_ids = {
+        item["request_id"]
+        for item in pending_result.get("requests", [])
+    }
+
+    if request_id not in pending_ids:
+        return {
+            "success": False,
+            "message": (
+                f"Request {request_id} does not exist "
+                "or is no longer pending."
+            )
+        }
+
+    
     human_response = interrupt({
         "type": "replenishment_review",
         "request_id": request_id,
@@ -263,7 +289,7 @@ def request_human_review(request_id: int, decision: str):
         )
     })
 
-    # Require an explicit confirmation after resuming.
+
     if (
         not isinstance(human_response, dict)
         or human_response.get("confirmed") is not True
@@ -285,5 +311,16 @@ def request_human_review(request_id: int, decision: str):
     return review_replenishment_request.invoke({
         "request_id": request_id,
         "decision": decision,
-        "reviewed_by": reviewed_by
+       "reviewed_by": reviewed_by 
     })
+
+
+
+
+result = request_human_review.invoke({
+    "request_id": 99999,
+    "decision": "APPROVED"
+   
+})
+
+print(result)

@@ -27,6 +27,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from typing import TypedDict, Annotated
 from rag.rag_tool import search_company_documents
 from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.checkpoint.postgres import PostgresSaver
 
 tools = [
     get_low_stock_products,
@@ -131,11 +132,14 @@ graph.add_edge(
 from langgraph.types import Command
 import uuid
 
-checkpointer = InMemorySaver()
+DB_URI = os.getenv("DATABASE_URL")
 
-inventory_app = graph.compile(
-    checkpointer=checkpointer
-)
+if not DB_URI:
+    raise ValueError("DATABASE_URL is not set in your .env file")
+
+with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+    checkpointer.setup()
+    inventory_app = graph.compile(checkpointer=checkpointer)
 
 thread_id = str(uuid.uuid4())
 
