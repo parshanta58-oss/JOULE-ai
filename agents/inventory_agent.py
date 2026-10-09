@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-
 load_dotenv()
 
 from tools.inventory_tool import (
@@ -12,6 +11,13 @@ from tools.inventory_tool import (
     
 )
 
+from tools.action_tools import (
+    create_replenishment_request,
+    get_pending_replenishment_requests,
+    request_human_review,
+
+)
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
@@ -20,6 +26,7 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from typing import TypedDict, Annotated
 from rag.rag_tool import search_company_documents
+from langgraph.checkpoint.memory import InMemorySaver
 
 tools = [
     get_low_stock_products,
@@ -27,7 +34,10 @@ tools = [
     get_product_inventory,
     get_inventory_summary_by_warehouse,
     get_inventory_by_category,
-    search_company_documents
+    search_company_documents,
+    create_replenishment_request,
+    request_human_review,
+    get_pending_replenishment_requests,
 ]
 
 llm=ChatGroq(
@@ -63,6 +73,28 @@ def inventory_agent(state: InventoryPipeline):
     Use both SQL tools and the company document search tool when the question requires both structured inventory data and company documentation.
 
     Always use the appropriate tool instead of guessing.
+
+    Use create_replenishment_request tool only when the user 
+    explicitly requests creating a replenishment request.
+    Never claim a request was created unless the tool returns success.
+
+    Before creating a request, validate the product ID and ensure the requested quantity is greater than zero.
+
+    Never claim that a replenishment request was created unless the Action Tool returns success: True.
+
+    A newly created replenishment request must remain in PENDING status until reviewed.
+    Never claim that a request was approved or rejected unless the review tool confirms the operation succeeded.
+
+    Do not review a request that has already been reviewed.
+
+    Do not invent request IDs, product details, quantities, or tool results.
+
+    The reviewed_by field must not be treated as proof of an authenticated user's identity.
+    For approving or rejecting replenishment requests:
+    - Never update a request's status directly.
+    - Use request_human_review to request human confirmation.
+    - Do not claim approval or rejection until the tool confirms success.
+    - Never bypass the human-review step.
     """
     messages = [
         {"role": "system", "content": system_message}
@@ -95,8 +127,72 @@ graph.add_edge(
 
 
 
-inventory_app = graph.compile()
 
+from langgraph.types import Command
+import uuid
+
+checkpointer = InMemorySaver()
+
+inventory_app = graph.compile(
+    checkpointer=checkpointer
+)
+
+thread_id = str(uuid.uuid4())
+
+config = {
+    "configurable": {
+        "thread_id": thread_id
+    }
+}
+
+query = input("Enter your query: ")
+
+response = inventory_app.invoke(
+    {"messages": [HumanMessage(content=query)]},
+    config=config
+)
+
+interrupts = response.get("__interrupt__", ())
+
+if interrupts:
+    review_details = interrupts[0].value
+
+    print("\n--- HUMAN REVIEW REQUIRED ---")
+    print(review_details["message"])
+
+    confirmation = input(
+        "Confirm this decision? (yes/no): "
+    ).strip().lower()
+
+    if confirmation == "yes":
+        reviewer = input("Enter reviewer name: ").strip()
+
+        if reviewer:
+            resume_value = {
+                "confirmed": True,
+                "reviewed_by": reviewer
+            }
+        else:
+            resume_value = {
+                "confirmed": False
+            }
+    else:
+        resume_value = {
+            "confirmed": False
+        }
+
+    response = inventory_app.invoke(
+        Command(resume=resume_value),
+        config=config
+    )
+
+print("\n--- AGENT RESPONSE ---")
+print(response["messages"][-1].content)
+
+inventory_app = graph.compile(
+    checkpointer=checkpointer
+)
+""" 
 query=input("Enter your query :")
 
 response=inventory_app.invoke(
@@ -105,3 +201,4 @@ response=inventory_app.invoke(
 
 print(response["messages"][-1].content)
 
+ """

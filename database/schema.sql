@@ -176,3 +176,12 @@ CREATE TABLE support_tickets (
     resolved_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE replenishment_requests (
+    request_id SERIAL PRIMARY KEY,
+    product_id INT NOT NULL REFERENCES products(product_id),
+    quantity INT NOT NULL,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
