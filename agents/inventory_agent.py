@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
+from tools.authorization import check_user_permission
 
 from tools.inventory_tool import (
     get_low_stock_products,
@@ -161,16 +162,22 @@ if mode == "new":
         config=config
     )
 
+
 elif mode == "resume":
     confirmation = input(
         "Confirm the pending action? (yes/no): "
     ).strip().lower()
 
     if confirmation == "yes":
-        reviewer = input("Enter reviewer name: ").strip()
+        reviewer = input("Enter reviewer username: ").strip()
 
-        if not reviewer:
-            print("Reviewer name is required.")
+        permission = check_user_permission(
+            reviewer,
+            "INVENTORY_MANAGER"
+        )
+
+        if not permission["authorized"]:
+            print("Authorization denied:", permission["message"])
             raise SystemExit(1)
 
         resume_value = {
