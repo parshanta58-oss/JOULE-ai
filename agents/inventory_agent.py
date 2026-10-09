@@ -128,20 +128,22 @@ graph.add_edge(
 
 
 
-
 from langgraph.types import Command
-import uuid
 
 DB_URI = os.getenv("DATABASE_URL")
 
 if not DB_URI:
     raise ValueError("DATABASE_URL is not set in your .env file")
 
-with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
-    checkpointer.setup()
-    inventory_app = graph.compile(checkpointer=checkpointer)
+checkpointer_context = PostgresSaver.from_conn_string(DB_URI)
+checkpointer = checkpointer_context.__enter__()
 
-thread_id = str(uuid.uuid4())
+checkpointer.setup()
+
+inventory_app = graph.compile(checkpointer=checkpointer)
+
+# Keep the same thread ID to resume the interrupted workflow.
+thread_id = "inventory-review-test-001"
 
 config = {
     "configurable": {
@@ -149,12 +151,44 @@ config = {
     }
 }
 
-query = input("Enter your query: ")
+mode = input("Enter mode (new/resume): ").strip().lower()
 
-response = inventory_app.invoke(
-    {"messages": [HumanMessage(content=query)]},
-    config=config
-)
+if mode == "new":
+    query = input("Enter your query: ")
+
+    response = inventory_app.invoke(
+        {"messages": [HumanMessage(content=query)]},
+        config=config
+    )
+
+elif mode == "resume":
+    confirmation = input(
+        "Confirm the pending action? (yes/no): "
+    ).strip().lower()
+
+    if confirmation == "yes":
+        reviewer = input("Enter reviewer name: ").strip()
+
+        if not reviewer:
+            print("Reviewer name is required.")
+            raise SystemExit(1)
+
+        resume_value = {
+            "confirmed": True,
+            "reviewed_by": reviewer
+        }
+    else:
+        resume_value = {"confirmed": False}
+
+    response = inventory_app.invoke(
+        Command(resume=resume_value),
+        config=config
+    )
+
+else:
+    print("Invalid mode. Enter 'new' or 'resume'.")
+    raise SystemExit(1)
+
 
 interrupts = response.get("__interrupt__", ())
 
@@ -163,46 +197,11 @@ if interrupts:
 
     print("\n--- HUMAN REVIEW REQUIRED ---")
     print(review_details["message"])
-
-    confirmation = input(
-        "Confirm this decision? (yes/no): "
-    ).strip().lower()
-
-    if confirmation == "yes":
-        reviewer = input("Enter reviewer name: ").strip()
-
-        if reviewer:
-            resume_value = {
-                "confirmed": True,
-                "reviewed_by": reviewer
-            }
-        else:
-            resume_value = {
-                "confirmed": False
-            }
-    else:
-        resume_value = {
-            "confirmed": False
-        }
-
-    response = inventory_app.invoke(
-        Command(resume=resume_value),
-        config=config
+    print(
+        "\nWorkflow is paused. Restart the program "
+        "and choose 'resume' to continue."
     )
+else:
+    print("\n--- AGENT RESPONSE ---")
+    print(response["messages"][-1].content)
 
-print("\n--- AGENT RESPONSE ---")
-print(response["messages"][-1].content)
-
-inventory_app = graph.compile(
-    checkpointer=checkpointer
-)
-""" 
-query=input("Enter your query :")
-
-response=inventory_app.invoke(
-    {"messages":[query]}
-)
-
-print(response["messages"][-1].content)
-
- """
