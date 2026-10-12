@@ -1,7 +1,7 @@
 
 from pwdlib import PasswordHash
 from tools.database import get_connection
-from getpass import getpass
+""" from getpass import getpass """
 
 password_hasher = PasswordHash.recommended()
 
@@ -125,5 +125,27 @@ def authenticate_user(username: str, password: str) -> dict:
         "message": "Authentication successful."
     }
 
+""" 
 
 
+username = input("Enter your username : ")
+password = getpass("Create a test password (minimum 12 characters): ")
+
+result = register_user(
+    username=username,
+    password=password,
+    role="INVENTORY_MANAGER"
+)
+print("Registration:", result)
+
+if result.get("success"):
+    login_password = getpass("Enter the password again: ")
+    print("Correct password:", authenticate_user(username, login_password))
+
+    print(
+        "Wrong password:",
+        authenticate_user(username, "definitely-wrong-password")
+    )
+else:
+    print("Registration did not succeed. Check the message above.")
+ """

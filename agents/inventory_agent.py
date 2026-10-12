@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from tools.authorization import check_user_permission
+from tools.authentication import authenticate_user
 
 from tools.inventory_tool import (
     get_low_stock_products,
@@ -163,6 +164,7 @@ if mode == "new":
     )
 
 
+
 elif mode == "resume":
     confirmation = input(
         "Confirm the pending action? (yes/no): "
@@ -171,8 +173,18 @@ elif mode == "resume":
     if confirmation == "yes":
         reviewer = input("Enter reviewer username: ").strip()
 
+        # Step 1: Verify the user's password.
+        password = input("Enter password: ")
+
+        auth_result = authenticate_user(reviewer, password)
+
+        if not auth_result["authenticated"]:
+            print("Authentication failed:", auth_result["message"])
+            raise SystemExit(1)
+
+        # Step 2: Check the verified user's role.
         permission = check_user_permission(
-            reviewer,
+            auth_result["username"],
             "INVENTORY_MANAGER"
         )
 
@@ -180,10 +192,12 @@ elif mode == "resume":
             print("Authorization denied:", permission["message"])
             raise SystemExit(1)
 
+        # Step 3: Resume using the verified identity.
         resume_value = {
             "confirmed": True,
-            "reviewed_by": reviewer
+            "reviewed_by": auth_result["username"]
         }
+
     else:
         resume_value = {"confirmed": False}
 
@@ -191,6 +205,7 @@ elif mode == "resume":
         Command(resume=resume_value),
         config=config
     )
+
 
 else:
     print("Invalid mode. Enter 'new' or 'resume'.")
