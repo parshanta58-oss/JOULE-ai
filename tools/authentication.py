@@ -6,11 +6,12 @@ from tools.database import get_connection
 password_hasher = PasswordHash.recommended()
 
 
-def register_user(username: str, password: str, role: str) -> dict:
+def register_user(username: str, password: str) -> dict:
     """Register a user and store only their password hash."""
 
     username = username.strip()
-    role = role.strip().upper()
+    """ role = role.strip().upper() """
+    role = "EMPLOYEE"
 
     if not username or not password:
         return {
@@ -24,11 +25,6 @@ def register_user(username: str, password: str, role: str) -> dict:
             "message": "Password must be at least 12 characters."
         }
 
-    if role not in {"ADMIN", "INVENTORY_MANAGER", "EMPLOYEE"}:
-        return {
-            "success": False,
-            "message": "Invalid role."
-        }
 
     password_hash = password_hasher.hash(password)
 
@@ -149,3 +145,9 @@ if result.get("success"):
 else:
     print("Registration did not succeed. Check the message above.")
  """
+
+"""     if role not in {"ADMIN", "INVENTORY_MANAGER", "EMPLOYEE"}:
+        return {
+            "success": False,
+            "message": "Invalid role."
+        } """

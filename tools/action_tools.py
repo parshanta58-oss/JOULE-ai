@@ -1,6 +1,7 @@
 from langchain_core.tools import tool
 from tools.database import get_connection
 from langgraph.types import interrupt
+from tools.authorization import check_user_permission
 
 @tool
 def create_replenishment_request(product_id: int, quantity: int):
@@ -96,6 +97,18 @@ def review_replenishment_request(
         return {
             "success": False,
             "message": "Reviewer name cannot be empty."
+        }
+
+    permission = check_user_permission(
+        reviewed_by,
+        "INVENTORY_MANAGER"
+    )
+
+    if not permission["authorized"]:
+        return {
+            "success": False,
+            "message": "Authorization denied: "
+                    + permission["message"]
         }
 
     conn = get_connection()

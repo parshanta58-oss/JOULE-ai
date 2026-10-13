@@ -2,13 +2,12 @@
 from getpass import getpass
 from tools.authentication import register_user, authenticate_user
 
-username = "prashanth_auth_test"
+username = "prashanth_registration_check_02"
 password = getpass("Create a test password (minimum 12 characters): ")
 
 result = register_user(
     username=username,
-    password=password,
-    role="INVENTORY_MANAGER"
+    password=password
 )
 print("Registration:", result)
 
