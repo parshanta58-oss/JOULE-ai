@@ -24,3 +24,6 @@ pypdf
 tiktoken
 langgraph-checkpoint-postgres
 pwdlib[argon2]
+
+fastapi
+uvicorn

@@ -153,77 +153,70 @@ config = {
     }
 }
 
-mode = input("Enter mode (new/resume): ").strip().lower()
+def run_inventory_cli():
+    mode = input("Enter mode (new/resume): ").strip().lower()
 
-if mode == "new":
-    query = input("Enter your query: ")
-
-    response = inventory_app.invoke(
-        {"messages": [HumanMessage(content=query)]},
-        config=config
-    )
-
-
-
-elif mode == "resume":
-    confirmation = input(
-        "Confirm the pending action? (yes/no): "
-    ).strip().lower()
-
-    if confirmation == "yes":
-        reviewer = input("Enter reviewer username: ").strip()
-
-        # Step 1: Verify the user's password.
-        password = input("Enter password: ")
-
-        auth_result = authenticate_user(reviewer, password)
-
-        if not auth_result["authenticated"]:
-            print("Authentication failed:", auth_result["message"])
-            raise SystemExit(1)
-
-        # Step 2: Check the verified user's role.
-        permission = check_user_permission(
-            auth_result["username"],
-            "INVENTORY_MANAGER"
+    if mode == "new":
+        query = input("Enter your query: ")
+        response = inventory_app.invoke(
+            {"messages": [HumanMessage(content=query)]},
+            config=config
         )
 
-        if not permission["authorized"]:
-            print("Authorization denied:", permission["message"])
-            raise SystemExit(1)
+    elif mode == "resume":
+        confirmation = input(
+            "Confirm the pending action? (yes/no): "
+        ).strip().lower()
 
-        # Step 3: Resume using the verified identity.
-        resume_value = {
-            "confirmed": True,
-            "reviewed_by": auth_result["username"]
-        }
+        if confirmation == "yes":
+            reviewer = input("Enter reviewer username: ").strip()
+            password = input("Enter password: ")
+
+            auth_result = authenticate_user(reviewer, password)
+
+            if not auth_result["authenticated"]:
+                print("Authentication failed:", auth_result["message"])
+                return
+
+            permission = check_user_permission(
+                auth_result["username"],
+                "INVENTORY_MANAGER"
+            )
+
+            if not permission["authorized"]:
+                print("Authorization denied:", permission["message"])
+                return
+
+            resume_value = {
+                "confirmed": True,
+                "reviewed_by": auth_result["username"]
+            }
+        else:
+            resume_value = {"confirmed": False}
+
+        response = inventory_app.invoke(
+            Command(resume=resume_value),
+            config=config
+        )
 
     else:
-        resume_value = {"confirmed": False}
+        print("Invalid mode. Enter 'new' or 'resume'.")
+        return
 
-    response = inventory_app.invoke(
-        Command(resume=resume_value),
-        config=config
-    )
+    interrupts = response.get("__interrupt__", ())
+
+    if interrupts:
+        review_details = interrupts[0].value
+        print("\n--- HUMAN REVIEW REQUIRED ---")
+        print(review_details["message"])
+        print(
+            "\nWorkflow is paused. Restart the program "
+            "and choose 'resume' to continue."
+        )
+    else:
+        print("\n--- AGENT RESPONSE ---")
+        print(response["messages"][-1].content)
 
 
-else:
-    print("Invalid mode. Enter 'new' or 'resume'.")
-    raise SystemExit(1)
-
-
-interrupts = response.get("__interrupt__", ())
-
-if interrupts:
-    review_details = interrupts[0].value
-
-    print("\n--- HUMAN REVIEW REQUIRED ---")
-    print(review_details["message"])
-    print(
-        "\nWorkflow is paused. Restart the program "
-        "and choose 'resume' to continue."
-    )
-else:
-    print("\n--- AGENT RESPONSE ---")
-    print(response["messages"][-1].content)
-
+if __name__ == "__main__":
+    run_inventory_cli()

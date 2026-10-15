@@ -105,14 +105,15 @@ graph.add_edge(
 # Compile
 procurement_app = graph.compile()
 
-query=input("Enter your query :")
+if __name__ == "__main__":
+    query = input("Enter your query: ")
 
-response=procurement_app.invoke(
-    {
-        "messages":[
-        HumanMessage(content=query)
-        ]
-    }
-)
+    response = procurement_app.invoke(
+        {
+            "messages": [
+                HumanMessage(content=query)
+            ]
+        }
+    )
 
-print(response["messages"][-1].content)
+    print(response["messages"][-1].content)

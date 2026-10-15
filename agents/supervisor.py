@@ -58,38 +58,3 @@ def supervisor(query):
     response = llm.invoke(messages)
 
     return response.content
-
-
-query = input("Enter your query: ")
-
-decision = supervisor(query)
-
-print("Supervisor decision:", decision)
-
-if decision == "sales":
-    response =sales_app.invoke(
-        {"messages": [HumanMessage(content=query)]}
-    )
-
-elif decision == "finance":
-    response = finance_app.invoke(
-        {"messages": [HumanMessage(content=query)]}
-    )
-elif decision == "hr":
-    response = hr_app.invoke(
-        {"messages": [HumanMessage(content=query)]}
-    )
-elif decision == "procurement":
-    response = procurement_app.invoke(
-        {"messages": [HumanMessage(content=query)]}
-)
-elif decision == "inventory":
-    response = inventory_app.invoke(
-        {"messages": [HumanMessage(content=query)]}
-)
-else:
-    print("Agent not connected yet.")
-    exit()
-
-print("\nFinal Answer:")
-print(response["messages"][-1].content)

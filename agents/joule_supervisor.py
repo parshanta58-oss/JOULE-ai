@@ -105,15 +105,17 @@ graph.add_edge("inventory", END)
 
 app = graph.compile()
 
-query = input("Enter your query: ")
 
-response = app.invoke(
-    {
-        "messages": [
-            HumanMessage(content=query)
-        ]
-    }
-)
+if __name__ == "__main__":
+    query = input("Enter your query: ")
 
-print("\nFinal Answer:")
-print(response["messages"][-1].content)
+    response = app.invoke(
+        {
+            "messages": [
+                HumanMessage(content=query)
+            ]
+        }
+    )
+
+    print("\nFinal Answer:")
+    print(response["messages"][-1].content)

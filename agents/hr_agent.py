@@ -99,11 +99,11 @@ graph.add_edge("tools", "hr_agent")
 
 hr_app= graph.compile()
 
-query=input("Enter your query : ")
+if __name__ == "__main__":
+    query = input("Enter your query: ")
 
+    response = hr_app.invoke(
+        {"messages": [query]}
+    )
 
-response=hr_app.invoke(
-    {"messages":[query]}
-)
-
-print(response["messages"][-1].content)
+    print(response["messages"][-1].content)
